@@ -1,0 +1,46 @@
+1.	Display all the attributes of the data.
+select * from weathersource-com.pub_weather_data_samples.sample_weather_forecast_great_britain_postalcode_daily;
+
+2.	Get max, min and average air temperature for GB country.
+select country,avg(max_temperature_air_2m_f) as avg_max_temp,avg(min_temperature_air_2m_f) as avg_min_temp,avg(avg_temperature_air_2m_f) as avg_temp from weathersource-com.pub_weather_data_samples.sample_weather_forecast_great_britain_postalcode_daily where country='GB' group by 1;
+ 
+3.	What all unique postal codes are included in data?
+select distinct postal_code from weathersource-com.pub_weather_data_samples.sample_weather_forecast_great_britain_postalcode_daily;
+ 
+4.	Find top 8 max pressure postal codes with max pressure, min pressure, avg_pressure.
+select  postal_code, avg(max_pressure_2m_mb) as avg_max_pressure,avg(min_pressure_2m_mb)as avg_min_pressure,avg(avg_pressure_2m_mb) as avg_pressure from weathersource-com.pub_weather_data_samples.sample_weather_forecast_great_britain_postalcode_daily group by postal_code order by avg_max_pressure desc limit 8;
+ 
+5.	What are the total crimes in US.
+select country, sum(num_crimes) as crimes from weathersource-com.pub_weather_data_samples.sample_weather_and_crime_comparison_chicago_daily_2016 where country = 'US' group by 1;
+ 
+6.	Get the crimes of first week of June in US.
+select country,cast(date_valid_std as date) as crimedate, sum(num_crimes) as crimes from weathersource-com.pub_weather_data_samples.sample_weather_and_crime_comparison_chicago_daily_2016 where date_valid_std BETWEEN '2016-06-01' and '2016-06-07' group by 1,2 order by crimedate asc;
+ 
+7.	Which month has highest crimes in US.
+select EXTRACT(month FROM date_valid_std ) AS month,country, sum(num_crimes) as crimes from weathersource-com.pub_weather_data_samples.sample_weather_and_crime_comparison_chicago_daily_2016 group by 1,2 order by crimes desc limit 1;
+
+8.	Which month has minimum crimes in US.
+select EXTRACT(month FROM date_valid_std ) AS month,country, sum(num_crimes) as crimes from weathersource-com.pub_weather_data_samples.sample_weather_and_crime_comparison_chicago_daily_2016 group by 1,2 order by crimes asc limit 1;
+ 
+9.	Use inner join to get all the common columns of both the dataset.
+select * from 
+weathersource-com.pub_weather_data_samples.sample_weather_forecast_us_zipcode_daily a
+inner join
+weathersource-com.pub_weather_data_samples.sample_weather_forecast_anomaly_us_zipcode_daily b
+on a.postal_code=b.postal_code and a.date_valid_std=b.date_valid_std
+
+10.	What is the average wind direction degree as per anomaly wind.
+select a.postal_code,a.date_valid_std as date,avg(avg_wind_direction_10m_deg) as wind_direc, avg(avg_wind_speed_10m_anomaly_mph) as anomaly_windspeed from 
+weathersource-com.pub_weather_data_samples.sample_weather_forecast_us_zipcode_daily a
+inner join
+weathersource-com.pub_weather_data_samples.sample_weather_forecast_anomaly_us_zipcode_daily b
+on a.postal_code=b.postal_code and a.date_valid_std=b.date_valid_std
+group by 1,2
+
+11.	What are the min and max pressure for anomaly temperature?
+select a.postal_code,a.date_valid_std as date,avg(min_pressure_2m_mb) as min_pressure,avg(max_pressure_2m_mb) as max_pressure, avg(avg_temperature_anomaly_air_2m_f) as anomaly_temperature from 
+weathersource-com.pub_weather_data_samples.sample_weather_forecast_us_zipcode_daily a
+inner join
+weathersource-com.pub_weather_data_samples.sample_weather_forecast_anomaly_us_zipcode_daily b
+on a.postal_code=b.postal_code and a.date_valid_std=b.date_valid_std
+group by 1,2
